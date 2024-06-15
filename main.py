@@ -16,6 +16,7 @@ def layer_bar(screen: pygame.Surface, font: pygame.font.Font):
 
     if pygame.mouse.get_pressed()[0]:
         # print("sheeshh")
+        pass
 
 CANVAS_ITEMS = [
     ((4, 4), (12, 4), (0, 255, 0)),
