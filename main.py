@@ -1,3 +1,4 @@
+import math
 import pygame
 
 MIN_SCREEN_SIZE = (600, 300)
@@ -29,11 +30,11 @@ CANVAS_ITEMS = [
 ];
 
 VISUALIZE_LINE = None;
-GRID_SIZE = 30;
+GRID_SIZE = 15;
 
 SHOW_GRID = True;
 
-def canvas(screen: pygame.Surface):
+def canvas(screen: pygame.Surface, font: pygame.font.Font):
     size = screen.get_size();
     WIDTH = size[0] - 300
 
@@ -49,6 +50,25 @@ def canvas(screen: pygame.Surface):
     global VISUALIZE_LINE
     if VISUALIZE_LINE:
         pygame.draw.line(screen, (0, 0, 0), (VISUALIZE_LINE[0][0]*GRID_SIZE, VISUALIZE_LINE[0][1]*GRID_SIZE), (VISUALIZE_LINE[1][0]*GRID_SIZE, VISUALIZE_LINE[1][1]*GRID_SIZE), 4);
+
+    if pygame.mouse.get_pressed()[0]:
+        pos = pygame.mouse.get_pos();
+        if VISUALIZE_LINE == None:
+            VISUALIZE_LINE = [(round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE)), (round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE)), (0, 0, 0)];
+        else:
+            VISUALIZE_LINE[1] = round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE);
+
+        length = str(
+            math.sqrt( (VISUALIZE_LINE[0][0] - VISUALIZE_LINE[1][0])**2 + (VISUALIZE_LINE[0][1] - VISUALIZE_LINE[1][1])**2 )
+        )
+        text = font.render(length, True, (0, 0, 0));
+        textRect = text.get_rect();
+        textRect.midright = (pos[0] - 10, pos[1]);
+        screen.blit(text, textRect);
+    else:
+        if VISUALIZE_LINE:
+            CANVAS_ITEMS.append(VISUALIZE_LINE);
+            VISUALIZE_LINE = None;
 
 def main():
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE);
@@ -74,28 +94,20 @@ def main():
                 screen = pygame.display.set_mode((width, height), pygame.RESIZABLE);
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z and event.mod & pygame.KMOD_CTRL:
-                    print("fuck off ");
                     CANVAS_ITEMS.pop();
 
 
-        if pygame.mouse.get_pressed()[0]:
-            pos = pygame.mouse.get_pos();
-            global VISUALIZE_LINE
-            if VISUALIZE_LINE == None:
-                VISUALIZE_LINE = [(round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE)), (round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE)), (0, 0, 0)];
-            else:
-                VISUALIZE_LINE[1] = round(pos[0] / GRID_SIZE), round(pos[1] / GRID_SIZE);
-        else:
-            if VISUALIZE_LINE:
-                CANVAS_ITEMS.append(VISUALIZE_LINE);
-                VISUALIZE_LINE = None;
-
         screen.fill((220, 220, 220));
 
-        canvas(screen);
+        canvas(screen, font);
         layer_bar(screen, font);
 
         pygame.display.flip();
 
 if __name__ == '__main__':
     main();
+
+# TODO: color
+# TODO: dotted line
+# TODO: half inch mode
+# TODO: ruler near cursor
